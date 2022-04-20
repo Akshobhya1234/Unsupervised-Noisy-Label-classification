@@ -191,8 +191,8 @@ x_test = x_test/255.0
 print("SHAPE X_TRAIN Y_TRAIN",x_train.shape,y_train.shape)
 
 df = pd.DataFrame(list(zip(x_train,y_train)), columns =['identified_cluster','label'])
-pca = PCA(0.9)
-x_train = pca.fit_transform(x_train)
+#pca = PCA(0.95)
+#x_train = pca.fit_transform(x_train)
 x_train = np.append(x_train,y_train,axis = 1)
 
 x_train = np.append(x_train,y_train,axis = 1)
@@ -200,8 +200,8 @@ x_train = np.append(x_train,y_train,axis = 1)
 print("SHAPE X_TRAIN Y_TRAIN",x_train.shape,y_train.shape)
 
 
-plt.scatter(x_train[:, 0], x_train[:, 1], c=y_train, cmap='viridis')
-plt.show()
+#plt.scatter(x_train[:, 0], x_train[:, 1], c=y_train, cmap='viridis')
+#plt.show()
 km = KMeans(n_clusters=10,n_init = 100, max_iter = 1000)
 #identified_clusters = KMeans(n_clusters = 10).fit_predict(x_train)
 #identified_clusters = AgglomerativeClustering(n_clusters=10).fit_predict(x_train)
@@ -237,7 +237,7 @@ autoencoder = Model(input_img, decoded)
 print(autoencoder.summary())
 encoder = Model(input_img, encoded)
 autoencoder.compile(optimizer='adam', loss='mse')
-train_history = autoencoder.fit(x_train, x_train, epochs=50, batch_size = 128,  verbose = 1)
+train_history = autoencoder.fit(x_train, x_train, epochs=5, batch_size = 128,  verbose = 1)
 print(autoencoder.summary())
 autoencoder.save_weights('autoencoder.h5')
 print(train_history)
@@ -263,12 +263,12 @@ model.compile(optimizer='adam', metrics=['accuracy'], loss='mean_squared_error')
 
 
 # We want to add different noise vectors for each epoch
-#pred =  model.fit(x_train, x_train, epochs=1, batch_size=100)
+#pred =  model.fit(x_train, x_train, epochs=50, batch_size=200)
 km.fit(pred)
 identified_clusters = km.predict(pred)
 
 
-pickle.dump(identified_clusters, open("model1.pkl", "wb"))
+pickle.dump(identified_clusters, open("model2.pkl", "wb"))
 #plt.scatter(pred[:, 0], pred[:, 1], c=identified_clusters, cmap='viridis')
 #plt.show()
 
@@ -290,11 +290,11 @@ new_df = df.head(1)
 for cluster in clusters:
     temp = df[df.identified_cluster == cluster]
     y = temp['label']
-    #print("Mode", y.mode())
+    print("Mode", y.mode())
     m = y.mode()
     #print(" m = ",int(m[0]))
     item_counts = (temp["label"].value_counts())
-    #print(item_counts)
+    print(item_counts)
     temp_dict = dict()
     for i,j in item_counts.iteritems():
         print("i,j = ",i,j)
