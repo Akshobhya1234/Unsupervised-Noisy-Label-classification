@@ -16,6 +16,7 @@ from keras.layers import Dense, Input
 from keras.layers import Conv2D
 from tensorflow.keras.layers import  MaxPooling2D, Dropout
 from tensorflow.keras import  models, layers
+import tensorflow as tf
 
 
 
@@ -191,8 +192,8 @@ x_test = x_test/255.0
 print("SHAPE X_TRAIN Y_TRAIN",x_train.shape,y_train.shape)
 
 df = pd.DataFrame(list(zip(x_train,y_train)), columns =['identified_cluster','label'])
-#pca = PCA(0.95)
-#x_train = pca.fit_transform(x_train)
+pca = PCA(0.9)
+x_train = pca.fit_transform(x_train)
 x_train = np.append(x_train,y_train,axis = 1)
 
 x_train = np.append(x_train,y_train,axis = 1)
@@ -237,7 +238,7 @@ autoencoder = Model(input_img, decoded)
 print(autoencoder.summary())
 encoder = Model(input_img, encoded)
 autoencoder.compile(optimizer='adam', loss='mse')
-train_history = autoencoder.fit(x_train, x_train, epochs=5, batch_size = 128,  verbose = 1)
+train_history = autoencoder.fit(x_train, x_train, epochs=50, batch_size = 128,  verbose = 1)
 print(autoencoder.summary())
 autoencoder.save_weights('autoencoder.h5')
 print(train_history)
@@ -272,7 +273,7 @@ pickle.dump(identified_clusters, open("model2.pkl", "wb"))
 #plt.scatter(pred[:, 0], pred[:, 1], c=identified_clusters, cmap='viridis')
 #plt.show()
 
-identified_clusters = pickle.load(open("model1.pkl", "rb"))
+identified_clusters = pickle.load(open("model2.pkl", "rb"))
 clusters = np.unique(identified_clusters)
 print("Y",y_train.shape)
 y_train = y_train.flatten()
@@ -297,10 +298,9 @@ for cluster in clusters:
     print(item_counts)
     temp_dict = dict()
     for i,j in item_counts.iteritems():
-        print("i,j = ",i,j)
-        if(j > 200 and j < 800):
-            temp_dict[i] = j
+        temp_dict[i] = j
     lis = list(temp_dict.keys())
+    lis = lis[4:8:1]
     #print(lis)
     #print(dict)
     temp1 = df.query("(identified_cluster==@cluster) and (label not in @lis)")
@@ -354,8 +354,6 @@ model.add(layers.Dense(50, activation='relu'))
 model.add(layers.Dense(10))
 
 print(model.summary())
-
-import tensorflow as tf
 
 model.compile(optimizer='adam',
               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
